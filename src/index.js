@@ -1,33 +1,99 @@
 import './style.css';
 
-const todo = [
-  {
-    description: 'Learn Javascript',
-    completed: false,
-    index: 0,
-  },
-  {
-    description: 'Complete JavaScript Projects',
-    completed: false,
-    index: 1,
-  },
-  {
-    description: 'Go to Gym',
-    completed: false,
-    index: 2,
-  },
-];
+let todoItems = [];
 
-const todoList = document.getElementById('todo-list');
-todo.forEach((todo) => {
-  todoList.innerHTML += `
+function renderTodo(todo) {
+  localStorage.setItem('todoItems', JSON.stringify(todoItems));
+
+  const list = document.querySelector('#todo-list');
+  const item = document.querySelector(`[data-key='${todo.id}]`);
+
+
+  if (todo.deleted) {
+    item.remove();
+    if (todoItems.length === 0) {
+      list.innerHTML = '';
+      return;
+    }
+    const isChecked = todo.checked ? 'done': '';
+    const node = document.createElement("li");
+    node.setAttribute('class', `todo-item ${isChecked}`);
+    node.setAttribute('data-key', todo.id);
+    node.innerHTML += ` 
     <li><hr></li>
     <li class="todo">
         <div>
             <input type="checkbox" name="checkbox-${todo.index}" ${todo.completed ? 'checked' : 'unchecked'}>
-            <h2>${todo.description}</h2>
+            <h2>${todo.text}</h2>
         </div>
         <button><i class="fa fa-ellipsis-v" aria-hidden="true"></i></button>
     </li>
-  `;
+    `;
+
+    if (item) {
+      list.replaceChild(node, item);
+    } else {
+      list.append(node);
+    }
+  }
+}
+  function addTodo(text) {
+    const todo = {
+      text,
+      checked: false,
+      id: Date.now(),
+    };
+  
+    todoItems.push(todo);
+    renderTodo(todo);
+  }
+  function toggleDone(key) {
+    const index = todoItems.findIndex(item => item.id === Number(key));
+    todoItems[index].checked = !todoItems[index].checked;
+    renderTodo(todoItems[index]);
+  }
+  
+  function deleteTodo(key) {
+    const index = todoItems.findIndex(item => item.id === Number(key));
+    const todo = {
+      deleted: true,
+      ...todoItems[index]
+    };
+    todoItems = todoItems.filter(item => item.id !== Number(key));
+    renderTodo(todo);
+  }
+
+  const form = document.querySelector('.add-new-todo');
+  form.addEventListener('submit', event => {
+  event.preventDefault();
+  const input = document.querySelector('.text-todo');
+
+  const text = input.value.trim();
+  if (text !== '') {
+    addTodo(text);
+    input.value = '';
+    input.focus();
+  }
+});
+const list = document.querySelector('#todo-list');
+list.addEventListener('click', event => {
+  if (event.target.classList.contains('tick')) {
+    const itemKey = event.target.parentElement.dataset.key;
+    toggleDone(itemKey);
+  }
+
+  if (event.target.classList.contains('delete-todo')) {
+    const itemKey = event.target.parentElement.dataset.key;
+    deleteTodo(itemKey);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const ref = localStorage.getItem('todoItems');
+  if (ref) {
+    todoItems = JSON.parse(ref);
+    todoItems.forEach(t => {
+      renderTodo(t);
+    });
+  }
 });
