@@ -15,18 +15,34 @@ const updateView = () => {
         <li><hr></li>
         <li class="todo">
             <div>
-                <input type="checkbox" name="checkbox" value="${index}" ${todoListItem.completed ? 'checked' : ''}>
+                <input type="checkbox" name="checkbox" id="checkbox_${index}" ${todoListItem.completed ? 'checked' : ''}>
               <h2>${todoListItem.description}</h2>
             </div>
-            <button><i class="fa fa-ellipsis-v" aria-hidden="true"></i></button>
+            <button><i class="fa fa-trash" aria-hidden="true"></i></button>
         </li>
       `;
     });
   }
 };
 
+const storeItem = (items) => {
+  if (items.length > 0) {
+    localStorage.setItem('todoList', JSON.stringify(items));
+  } else {
+    localStorage.clear();
+  }
+};
+
 const clearLocalStorage = () => {
-  localStorage.clear();
+  const todoListArr = getDataFromLocalStorage();
+  let counter = todoListArr.length;
+  while (counter > 0) {
+    if (todoListArr[counter - 1].completed) {
+      todoListArr.splice(counter - 1, 1);
+    }
+    counter -= 1;
+  }
+  storeItem(todoListArr);
   updateView();
 };
 
@@ -34,19 +50,29 @@ const clearInput = () => {
   document.getElementById('todoListInput').value = '';
 };
 
-const storeInLocalStorage = (data) => {
+const toggleCheckbox = (id) => {
+  const todoListArr = getDataFromLocalStorage();
+  const checkboxElement = document.getElementById(id).checked;
+  const arrIndex = todoListArr.findIndex((item) => `checkbox_${item.id}` === id);
+  todoListArr[arrIndex].completed = checkboxElement;
+  storeItem(todoListArr);
+};
+
+const addItem = (data) => {
   const item = {
     completed: false,
     description: data,
+    id: 0,
   };
   const previousTodoList = getDataFromLocalStorage();
   let todoList = [];
   if (previousTodoList !== null) {
+    item.id = previousTodoList.length;
     todoList = [...getDataFromLocalStorage(), item];
   } else {
     todoList.push(item);
   }
-  localStorage.setItem('todoList', JSON.stringify(todoList));
+  storeItem(todoList);
   clearInput();
   updateView();
 };
@@ -55,8 +81,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('form').addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    storeInLocalStorage(formData.get('new-todo'));
+    addItem(formData.get('new-todo'));
   });
+
+  document
+    .getElementById('todo-list')
+    .addEventListener('click', (e) => {
+      if (e.target.type === 'checkbox') {
+        toggleCheckbox(e.target.id);
+      }
+    });
 
   document
     .getElementById('clear-completed-button')
