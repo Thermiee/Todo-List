@@ -62,6 +62,17 @@ hr {
   width: 30px;
 }
 
+.action {
+  display: flex;
+  gap: 0 10px;
+}
+
+.action > button {
+  background-color: #6969691c !important;
+  padding: 7px 1px;
+  border-radius: 100%;
+}
+
 #todo-list {
   list-style: none;
 }
@@ -69,7 +80,7 @@ hr {
 #todo-list .todo {
   display: flex;
   justify-content: space-between;
-  padding: 0px 40px;
+  padding: 0 40px;
   align-items: center;
 }
 
@@ -106,23 +117,11 @@ hr {
   height: 100%;
   width: 100%;
 }
-/* .borderless.edit {
-  border-bottom: 2px solid red;
-} */
-.action {
-  display: flex;
-  gap: 0 10px;
-}
-.action > button {
-  background-color: #6969691c !important;
-  padding: 7px 1px;
-  border-radius: 100%;
-}
 
 button[hidden] {
   display: none;
 }
 
 .todo.active {
-  background-color: #9d8989a1;;
+  background-color: #9d8989a1;
 }
