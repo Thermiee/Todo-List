@@ -16,7 +16,7 @@ const updateView = () => {
         <li class="todo ${todoListItem.editable ? 'active' : ''}" >
             <div>
               <input type="checkbox" name="checkbox" id="checkbox_${todoListItem.id}" ${todoListItem.completed ? 'checked' : ''}>
-              <input id="input_${todoListItem.id}" ${todoListItem.editable ? '' : 'disabled="true"'} value="${todoListItem.description}" class="borderless ${todoListItem.editable ? 'edit' : ''} " />
+              <input id="input_${todoListItem.id}" ${todoListItem.editable ? '' : 'disabled="true"'} value="${todoListItem.description}" class="borderless ${todoListItem.completed ? 'edit' : ''} " />
             </div>
             <section class="action">
               <button type="button" ${todoListItem.editable ? 'hidden' : ''} id="toggleMode_${todoListItem.id}" class="fa fa-pencil"></button>
@@ -28,7 +28,6 @@ const updateView = () => {
     });
   }
 };
-// <i class="fa fa-ellipsis-v" aria-hidden="true" id="i_${todoListItem.id}"></i>
 
 const storeItem = (items) => {
   if (items.length > 0) {
@@ -63,6 +62,7 @@ const toggleCheckbox = (id) => {
   const arrIndex = todoListArr.findIndex((item) => `checkbox_${item.id}` === id);
   todoListArr[arrIndex].completed = checkboxElement;
   storeItem(todoListArr);
+  updateView();
 };
 
 const toggleEdit = (id, element) => {
@@ -86,6 +86,10 @@ const deleteItem = (id, element) => {
   const todoListArr = getDataFromLocalStorage();
   const arrIndex = todoListArr.findIndex((item) => `${element}_${item.id}` === id);
   todoListArr.splice(arrIndex, 1);
+
+  for (let i = 0; i < todoListArr.length; i += 1) {
+    todoListArr[i].index = i + 1;
+  }
   storeItem(todoListArr);
   updateView();
 };
@@ -96,10 +100,12 @@ const addItem = (data) => {
     description: data,
     id: Math.random().toString(16).slice(2),
     editable: false,
+    index: 1,
   };
   const previousTodoList = getDataFromLocalStorage();
   let todoList = [];
   if (previousTodoList !== null) {
+    item.index = previousTodoList.length + 1;
     todoList = [...getDataFromLocalStorage(), item];
   } else {
     todoList.push(item);
@@ -119,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document
     .getElementById('todo-list')
     .addEventListener('click', (e) => {
-      // console.log(e);
       if (e.target.type === 'checkbox') {
         toggleCheckbox(e.target.id);
       } else if (e.target.type === 'button') {

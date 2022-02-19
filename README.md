@@ -1,9 +1,10 @@
 ![](https://img.shields.io/badge/Microverse-blueviolet)
 
-# Webpack Setup
+# Todo List
 
-> Hello Webpack Project.
+> Todo list Project.
 
+![screenshot](./app_screenshot.png)
 
 ## Built With
 
