@@ -10,20 +10,25 @@ const updateView = () => {
   const todo = document.getElementById('todo-list');
   todo.innerHTML = '';
   if (todoList) {
-    todoList.forEach((todoListItem, index) => {
+    todoList.forEach((todoListItem) => {
       todo.innerHTML += `
         <li><hr></li>
-        <li class="todo">
+        <li class="todo ${todoListItem.editable ? 'active' : ''}" >
             <div>
-                <input type="checkbox" name="checkbox" id="checkbox_${index}" ${todoListItem.completed ? 'checked' : ''}>
-              <h2>${todoListItem.description}</h2>
+              <input type="checkbox" name="checkbox" id="checkbox_${todoListItem.id}" ${todoListItem.completed ? 'checked' : ''}>
+              <input id="input_${todoListItem.id}" ${todoListItem.editable ? '' : 'disabled="true"'} value="${todoListItem.description}" class="borderless ${todoListItem.editable ? 'edit' : ''} " />
             </div>
-            <button><i class="fa fa-trash" aria-hidden="true"></i></button>
+            <section class="action">
+              <button type="button" ${todoListItem.editable ? 'hidden' : ''} id="toggleMode_${todoListItem.id}" class="fa fa-pencil"></button>
+              <button type="button" ${todoListItem.editable ? '' : 'hidden'} id="save_${todoListItem.id}" class="fa fa-check"></button>
+              <button  type="button" ${todoListItem.editable ? '' : 'hidden'} id="delete_${todoListItem.id}" class="fa fa-close"></button>
+            </section>
         </li>
       `;
     });
   }
 };
+// <i class="fa fa-ellipsis-v" aria-hidden="true" id="i_${todoListItem.id}"></i>
 
 const storeItem = (items) => {
   if (items.length > 0) {
@@ -35,15 +40,17 @@ const storeItem = (items) => {
 
 const clearLocalStorage = () => {
   const todoListArr = getDataFromLocalStorage();
-  let counter = todoListArr.length;
-  while (counter > 0) {
-    if (todoListArr[counter - 1].completed) {
-      todoListArr.splice(counter - 1, 1);
+  if (todoListArr) {
+    let counter = todoListArr.length;
+    while (counter > 0) {
+      if (todoListArr[counter - 1].completed) {
+        todoListArr.splice(counter - 1, 1);
+      }
+      counter -= 1;
     }
-    counter -= 1;
+    storeItem(todoListArr);
+    updateView();
   }
-  storeItem(todoListArr);
-  updateView();
 };
 
 const clearInput = () => {
@@ -58,16 +65,41 @@ const toggleCheckbox = (id) => {
   storeItem(todoListArr);
 };
 
+const toggleEdit = (id, element) => {
+  const todoListArr = getDataFromLocalStorage();
+  const arrIndex = todoListArr.findIndex((item) => `${element}_${item.id}` === id);
+  todoListArr[arrIndex].editable = !todoListArr[arrIndex].editable;
+  storeItem(todoListArr);
+  updateView();
+};
+
+const saveEdit = (id, element) => {
+  const newInputValue = document.getElementById(`input_${id.split('_')[1]}`);
+  const todoListArr = getDataFromLocalStorage();
+  const arrIndex = todoListArr.findIndex((item) => `${element}_${item.id}` === id);
+  todoListArr[arrIndex].description = newInputValue.value;
+  storeItem(todoListArr);
+  toggleEdit(`toggleMode_${id.split('_')[1]}`, 'toggleMode');
+};
+
+const deleteItem = (id, element) => {
+  const todoListArr = getDataFromLocalStorage();
+  const arrIndex = todoListArr.findIndex((item) => `${element}_${item.id}` === id);
+  todoListArr.splice(arrIndex, 1);
+  storeItem(todoListArr);
+  updateView();
+};
+
 const addItem = (data) => {
   const item = {
     completed: false,
     description: data,
-    id: 0,
+    id: Math.random().toString(16).slice(2),
+    editable: false,
   };
   const previousTodoList = getDataFromLocalStorage();
   let todoList = [];
   if (previousTodoList !== null) {
-    item.id = previousTodoList.length;
     todoList = [...getDataFromLocalStorage(), item];
   } else {
     todoList.push(item);
@@ -87,14 +119,28 @@ document.addEventListener('DOMContentLoaded', () => {
   document
     .getElementById('todo-list')
     .addEventListener('click', (e) => {
+      // console.log(e);
       if (e.target.type === 'checkbox') {
         toggleCheckbox(e.target.id);
+      } else if (e.target.type === 'button') {
+        const eventType = String(e.target.id);
+        if (eventType.indexOf('save') !== -1) {
+          saveEdit(e.target.id, 'save');
+        }
+        if (eventType.indexOf('delete') !== -1) {
+          deleteItem(e.target.id, 'delete');
+        }
+        if (eventType.indexOf('toggleMode') !== -1) {
+          toggleEdit(e.target.id, 'toggleMode');
+        }
       }
     });
 
   document
     .getElementById('clear-completed-button')
-    .addEventListener('click', clearLocalStorage, true);
+    .addEventListener('click', () => {
+      clearLocalStorage();
+    });
 });
 
 document.addEventListener('load', updateView());

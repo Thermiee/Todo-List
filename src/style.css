@@ -69,7 +69,7 @@ hr {
 #todo-list .todo {
   display: flex;
   justify-content: space-between;
-  padding: 20px 40px;
+  padding: 0px 40px;
   align-items: center;
 }
 
@@ -80,9 +80,10 @@ hr {
 
 #todo-list .todo div {
   display: flex;
-  justify-content: space-between;
   gap: 15px;
   align-items: center;
+  height: 40px;
+  width: 100%;
 }
 
 #todo-list .todo button {
@@ -96,4 +97,32 @@ hr {
   padding: 20px 40px;
   border: none;
   background-color: #f5f5f5;
+}
+
+.borderless {
+  border: none;
+  outline: none;
+  background: transparent;
+  height: 100%;
+  width: 100%;
+}
+/* .borderless.edit {
+  border-bottom: 2px solid red;
+} */
+.action {
+  display: flex;
+  gap: 0 10px;
+}
+.action > button {
+  background-color: #6969691c !important;
+  padding: 7px 1px;
+  border-radius: 100%;
+}
+
+button[hidden] {
+  display: none;
+}
+
+.todo.active {
+  background-color: #9d8989a1;;
 }
