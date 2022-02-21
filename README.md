@@ -5,7 +5,9 @@
 > Todo list Project.
 
 ![screenshot](./app_screenshot.png)
+# Live Demo
 
+https://thermiee.github.io/Todo-List/
 ## Built With
 
 - HTML
