@@ -78,6 +78,7 @@ npx eslint .
 👤 **Emmanuel Jolugbo**
 
 - GitHub: [@Thermiee](https://github.com/thermiee)
+- Linkendln: [Emmanuel Jolugbo](https://www.linkedin.com/in/emmanuel-jolugbo/)
 
 ## 🤝 Contributing
 
